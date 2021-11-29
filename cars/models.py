@@ -14,7 +14,7 @@ class Driver(DateMixin):
     last_name = models.CharField(max_length=50, help_text="Ivanov", verbose_name="Фамилия")
 
     def __str__(self):
-        return self.last_name
+        return '{} ({})'.format(self.last_name, self.first_name.upper())
 
     class Meta:
         verbose_name = 'Водитель'

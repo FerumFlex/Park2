@@ -15,12 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from .yasg import urlpatterns as doc_urls
 
-from cars import views1
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # path('json/', views1.json_driver, name="json"),
-    # path('api-auth/', include('rest_framework.urls')),
     path('', include('cars.urls')),
 ]
+
+urlpatterns +=doc_urls
