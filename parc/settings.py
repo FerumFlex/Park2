@@ -41,7 +41,16 @@ INSTALLED_APPS = [
     'cars.apps.CarsConfig',
     'rest_framework',
     'drf_yasg',
+    'django_filters',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DATE_FORMAT': ['%d/%m/%Y'],
+    'DATETIME_FORMAT': '%d/%m/%Y %H:%M:%S',
+}
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -129,3 +138,6 @@ STATICFILES_DIRS = []
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
