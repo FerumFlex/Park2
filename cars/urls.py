@@ -3,8 +3,8 @@ from .views import DriverViewSet, VehicleViewSet
 
 
 router = routers.DefaultRouter()
-router.register('view/driver', DriverViewSet, 'driver')
-router.register('view/vehicle', VehicleViewSet, 'vehicle')
+router.register('drivers/driver', DriverViewSet, 'driver')
+router.register('vehicles/vehicle', VehicleViewSet, 'vehicle')
 
 urlpatterns = router.urls
 
