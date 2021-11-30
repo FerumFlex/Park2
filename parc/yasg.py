@@ -5,7 +5,7 @@ from drf_yasg import openapi
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="Django Driver",
+        title="DRF АВТОПАРК",
         default_version='carPark',
         description='Перечень требуемых запросов к БД',
         license=openapi.License(name="Парк Автомобилей"),

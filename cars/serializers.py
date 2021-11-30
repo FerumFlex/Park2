@@ -10,27 +10,9 @@ class DriverSerializer(serializers.ModelSerializer):
         fields = ('__all__')
 
 
-#
-# class DriverCreateSerializer(serializers.ModelSerializer):
-#     """Добавление нового водителя"""
-#
-#     class Meta:
-#         model = Driver
-#         fields = ('__all__')
-#
-#
-# class DriverDeleteSerializer(serializers.ModelSerializer):
-#     """Удаление водителя"""
-#
-#     class Meta:
-#         model = Driver
-#         fields = ('__all__')
-#
-#
-# class DriverUpdateSerializer(serializers.ModelSerializer):
-#     """Обновление водителя"""
-#
-#     class Meta:
-#         model = Driver
-#         fields = ('__all__')
-#
+class VehicleSerializer(serializers.ModelSerializer):
+    """Список автомобилей"""
+
+    class Meta:
+        model = Vehicle
+        fields = ('__all__')
