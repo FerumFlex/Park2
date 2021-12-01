@@ -1,6 +1,6 @@
 from rest_framework.decorators import action
 from rest_framework.response import Response
-
+from rest_framework.filters import OrderingFilter
 from .models import Driver, Vehicle
 from rest_framework import viewsets, permissions, request, status
 from .serializers import DriverSerializer, VehicleSerializer
@@ -23,9 +23,9 @@ class DriverViewSet(viewsets.ModelViewSet):
     queryset = Driver.objects.all()
     permission_classes = [permissions.AllowAny]
     serializer_class = DriverSerializer
-    filter_backends = (filters.DjangoFilterBackend,)
+    filter_backends = (filters.DjangoFilterBackend, OrderingFilter)
     filterset_class = DriverDateFilter
-
+    ordering_fields = ['id', 'first_name', 'last_name', 'created_at', 'updated_at']
 
 class CharFilterInFilter(filters.BaseInFilter, filters.CharFilter):
     pass
@@ -44,8 +44,18 @@ class VehicleViewSet(viewsets.ModelViewSet):
     queryset = Vehicle.objects.all()
     permission_classes = [permissions.AllowAny]
     serializer_class = VehicleSerializer
-    filter_backends = (filters.DjangoFilterBackend,)
+    filter_backends = (filters.DjangoFilterBackend, OrderingFilter)
     filterset_class = VehicleDriverFilter
+    ordering_fields = ['id', 'driver_id', 'make', 'model', 'plate_number', 'created_at', 'updated_at']
+
+    # @action(methods=['get'], detail=False)
+    # def order(self, request):
+    #     order = self.get_queryset().order_by('id').last()
+    #     serializer = self.get_serializer_class()(order)
+    #     return Response(serializer.data)
+
+    # def get_queryset(self):
+    #     return Vehicle.objects.filter(driver_id="7")
 
 
 # class VehicleDriversList(generics.ListAPIView):
