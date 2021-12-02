@@ -18,3 +18,7 @@ class VehicleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vehicle
         fields = ('__all__')
+
+
+class VehicleDriverSerializer(serializers.Serializer):
+    driver = serializers.PrimaryKeyRelatedField(queryset=Driver.objects.all(), allow_null=True)

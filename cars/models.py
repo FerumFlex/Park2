@@ -23,7 +23,7 @@ class Driver(DateMixin):
 
 
 class Vehicle(DateMixin):
-    driver_id = models.ForeignKey('Driver', null=True, blank=True, on_delete=models.PROTECT, verbose_name="Водитель",
+    driver = models.ForeignKey('Driver', null=True, blank=True, on_delete=models.PROTECT, verbose_name="Водитель",
                                   related_name="vehicles")
     make = models.CharField(max_length=30, blank=True, help_text="Opel", verbose_name="Автоконцерн")
     model = models.CharField(max_length=30, blank=True, help_text="Corsa D", verbose_name="Модель")

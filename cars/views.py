@@ -1,12 +1,14 @@
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework.filters import OrderingFilter
-from .models import Driver, Vehicle
-from rest_framework import viewsets, permissions, request, status
-from .serializers import DriverSerializer, VehicleSerializer
-
-from django_filters import rest_framework as filters
 import django_filters
+from django_filters import rest_framework as filters
+from rest_framework import viewsets, permissions, request, status
+from rest_framework.decorators import action
+from rest_framework.filters import OrderingFilter
+from rest_framework.response import Response
+from rest_framework.generics import CreateAPIView, ListAPIView
+
+
+from .models import Driver, Vehicle
+from .serializers import DriverSerializer, VehicleSerializer, VehicleDriverSerializer
 
 
 class DriverDateFilter(django_filters.FilterSet):
@@ -27,12 +29,13 @@ class DriverViewSet(viewsets.ModelViewSet):
     filterset_class = DriverDateFilter
     ordering_fields = ['id', 'first_name', 'last_name', 'created_at', 'updated_at']
 
+
 class CharFilterInFilter(filters.BaseInFilter, filters.CharFilter):
     pass
 
 
 class VehicleDriverFilter(django_filters.FilterSet):
-    with_drivers = CharFilterInFilter(field_name="driver_id", lookup_expr='isnull')
+    with_drivers = CharFilterInFilter(field_name="driver", lookup_expr='isnull')
 
     class Meta:
         model = Vehicle
@@ -46,7 +49,24 @@ class VehicleViewSet(viewsets.ModelViewSet):
     serializer_class = VehicleSerializer
     filter_backends = (filters.DjangoFilterBackend, OrderingFilter)
     filterset_class = VehicleDriverFilter
-    ordering_fields = ['id', 'driver_id', 'make', 'model', 'plate_number', 'created_at', 'updated_at']
+    ordering_fields = ['id', 'driver', 'make', 'model', 'plate_number', 'created_at', 'updated_at']
+
+
+class VehicleDriverView(CreateAPIView):
+    queryset = Vehicle.objects.all()
+    serializer_class = VehicleDriverSerializer
+    lookup_url_kwarg = "vehicle_id"
+    lookup_field = "id"
+
+    def create(self, request, vehicle_id):
+        vehicle = self.get_object()
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        vehicle.driver_id = serializer.data["driver_id"]
+        vehicle.save()
+
+        return Response(VehicleSerializer(instance=vehicle).data)
 
     # @action(methods=['get'], detail=False)
     # def order(self, request):
@@ -56,7 +76,6 @@ class VehicleViewSet(viewsets.ModelViewSet):
 
     # def get_queryset(self):
     #     return Vehicle.objects.filter(driver_id="7")
-
 
 # class VehicleDriversList(generics.ListAPIView):
 #     serializer_class = VehicleSerializer
@@ -69,28 +88,28 @@ class VehicleViewSet(viewsets.ModelViewSet):
 #             queryset = queryset.filter(vehicle__driver_id=driver_id)
 #         return queryset
 
-class ParkViewSet(viewsets.ModelViewSet):
-    """
-    A viewset that provides the standard actions
-    """
-    queryset = Vehicle.objects.all()
-    serializer_class = VehicleSerializer
+# class ParkViewSet(viewsets.ModelViewSet):
+#     """
+#     A viewset that provides the standard actions
+#     """
+#     queryset = Vehicle.objects.all()
+#     serializer_class = VehicleSerializer
 
-    @action(detail=True, methods=['put'], name='Change Driver')
-    def set_driver(self, request, pk=None):
-        driver_id = self.get_object()
-        serializer = DriverSerializer(data=request.data)
-        if serializer.is_valid():
-            driver_id.set_driver(serializer.validated_data['driver'])
-            driver_id.save()
-            return Response({'status': 'driver set'})
-        else:
-            return Response(serializer.errors,
-                            status=status.HTTP_400_BAD_REQUEST)
+# @action(detail=True, methods=['put'], name='Change Driver')
+# def set_driver(self, request, pk=None):
+#     driver_id = self.get_object()
+#     serializer = DriverSerializer(data=request.data)
+#     if serializer.is_valid():
+#         driver_id.set_driver(serializer.validated_data['driver'])
+#         driver_id.save()
+#         return Response({'status': 'driver set'})
+#     else:
+#         return Response(serializer.errors,
+#                         status=status.HTTP_400_BAD_REQUEST)
 
-    # @action(detail=True, methods=['post', 'delete'])
-    # def unset_driver(self, request, pk=None):
+# @action(detail=True, methods=['post', 'delete'])
+# def unset_driver(self, request, pk=None):
 
-    # @password.mapping.delete
-    # def delete_password(self, request, pk=None):
-    #     """Delete the user's password."""
+# @password.mapping.delete
+# def delete_password(self, request, pk=None):
+#     """Delete the user's password."""
