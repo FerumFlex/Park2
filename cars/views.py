@@ -1,4 +1,5 @@
 import django_filters
+from django import forms
 from django_filters import rest_framework as filters
 from rest_framework import viewsets, permissions
 from rest_framework.filters import OrderingFilter
@@ -30,17 +31,21 @@ class DriverViewSet(viewsets.ModelViewSet):
     ordering_fields = ['id', 'first_name', 'last_name', 'created_at', 'updated_at']
 
 
-BOOLEAN_CHOICES = (('yes', 'True'), ('no', 'False'),)
-
-
 class VehicleDriverFilter(django_filters.FilterSet):
-    with_drivers = django_filters.TypedChoiceFilter(choices=BOOLEAN_CHOICES, coerce=strtobool, field_name="driver",
-                                                    lookup_expr='isnull')
+    with_drivers = django_filters.TypedChoiceFilter(
+        field_name="driver",
+        choices=(('yes', 'True'), ('no', 'False'),),
+        coerce=strtobool,
+        lookup_expr='isnull',
+    )
+
+    # Entry.objects.get(id__exact=None)
+    # Entry.objects.filter(pub_date__isnull=True)
 
     class Meta:
         model = Vehicle
         fields = ['with_drivers']
-
+        # fields = {'driver': ['isnull'], }
 
 class VehicleViewSet(viewsets.ModelViewSet):
     """Перечень машин"""
