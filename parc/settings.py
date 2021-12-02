@@ -48,8 +48,10 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
     'DATE_FORMAT': ['%d/%m/%Y'],
     'DATETIME_FORMAT': '%d/%m/%Y %H:%M:%S',
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+    ],
 }
-
 
 
 MIDDLEWARE = [
