@@ -10,7 +10,8 @@ class DriverSerializer(serializers.ModelSerializer):
     class Meta:
         model = Driver
         fields = ('__all__')
-
+        # in case of main information need
+        # fields = ('first_name', 'last_name')
 
 class VehicleSerializer(serializers.ModelSerializer):
     """Список автомобилей"""
@@ -18,6 +19,8 @@ class VehicleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vehicle
         fields = ('__all__')
+        # in case of main information need
+        # fields = ('make', 'model', 'plate_number', 'driver')
 
 
 class VehicleDriverSerializer(serializers.Serializer):

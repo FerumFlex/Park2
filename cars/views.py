@@ -1,11 +1,11 @@
 import django_filters
 from django_filters import rest_framework as filters
-from rest_framework import viewsets, permissions, request, status
-from rest_framework.decorators import action
+from rest_framework import viewsets, permissions
 from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
-from rest_framework.generics import CreateAPIView, ListAPIView
+from rest_framework.generics import CreateAPIView
 
+from distutils.util import strtobool
 
 from .models import Driver, Vehicle
 from .serializers import DriverSerializer, VehicleSerializer, VehicleDriverSerializer
@@ -30,12 +30,12 @@ class DriverViewSet(viewsets.ModelViewSet):
     ordering_fields = ['id', 'first_name', 'last_name', 'created_at', 'updated_at']
 
 
-class CharFilterInFilter(filters.BaseInFilter, filters.CharFilter):
-    pass
+BOOLEAN_CHOICES = (('yes', 'True'), ('no', 'False'),)
 
 
 class VehicleDriverFilter(django_filters.FilterSet):
-    with_drivers = CharFilterInFilter(field_name="driver", lookup_expr='isnull')
+    with_drivers = django_filters.TypedChoiceFilter(choices=BOOLEAN_CHOICES, coerce=strtobool, field_name="driver",
+                                                    lookup_expr='isnull')
 
     class Meta:
         model = Vehicle
@@ -63,7 +63,7 @@ class VehicleDriverView(CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        vehicle.driver_id = serializer.data["driver_id"]
+        vehicle.driver_id = serializer.data["driver"]
         vehicle.save()
 
         return Response(VehicleSerializer(instance=vehicle).data)
