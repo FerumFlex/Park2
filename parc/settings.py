@@ -50,6 +50,8 @@ REST_FRAMEWORK = {
     'DATETIME_FORMAT': '%d/%m/%Y %H:%M:%S',
     'DEFAULT_PARSER_CLASSES': [
         'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser',
     ],
 }
 

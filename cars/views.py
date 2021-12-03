@@ -37,6 +37,7 @@ class VehicleDriverFilter(django_filters.FilterSet):
         choices=(('yes', 'True'), ('no', 'False'),),
         coerce=strtobool,
         lookup_expr='isnull',
+        exclude=True,
     )
 
     # Entry.objects.get(id__exact=None)
