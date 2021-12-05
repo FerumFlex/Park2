@@ -1,15 +1,12 @@
-import json
 from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-from rest_framework.test import RequestsClient
-
-from cars.models import Driver, Vehicle
-from cars.serializers import DriverSerializer, VehicleSerializer
+from cars.models import Driver
+from cars.serializers import DriverSerializer
 
 
-class DriverApiTestCase(APITestCase):
+class DriverTestCases(APITestCase):
     def setUp(self):
         self.user = User.objects.create(username='test_username')
         self.driver_1 = Driver.objects.create(first_name="fname1", last_name="lname1")
@@ -73,6 +70,4 @@ class DriverApiTestCase(APITestCase):
 
     def test_driver_list(self):
         response = self.client.get(reverse('driver-list'))
-        # serializer_data = DriverSerializer([self.driver_1, self.driver_2, self.driver_3], many=True).data
         self.assertEqual(status.HTTP_200_OK, response.status_code)
-        self.assertTrue({'id': 1, 'first_name': 'fname1', 'last_name': 'lname1'} in response.json())
