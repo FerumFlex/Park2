@@ -51,12 +51,16 @@ class DriverTestCases(APITestCase):
         self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
         self.assertEqual(2, Driver.objects.all().count())
 
-    def test_filter(self):
-        response = self.client.get('/drivers/driver/', follow=True,
-                                   data={"created_at": 'created_at__gte'})
+    def test_filter_after_date(self):
+        response = self.client.get('/drivers/driver/?created_at__gte=10-11-2021', format="json")
         serializer_data = DriverSerializer([self.driver_1, self.driver_2, self.driver_3], many=True).data
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertEqual(serializer_data, response.data)
+
+    def test_filter_before_date(self):
+        response = self.client.get('/drivers/driver/?created_at__lte=16-11-2021', format="json")
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        self.assertEqual([], response.data)
 
     def test_fail_driver_detail(self):
         response = self.client.get(reverse('driver-detail', kwargs={'pk': 10}))
@@ -67,7 +71,3 @@ class DriverTestCases(APITestCase):
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertEqual(response.json().get('first_name'), "fname3")
         self.assertEqual(response.json().get('last_name'), "lname3")
-
-    def test_driver_list(self):
-        response = self.client.get(reverse('driver-list'))
-        self.assertEqual(status.HTTP_200_OK, response.status_code)

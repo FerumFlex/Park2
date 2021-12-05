@@ -2,8 +2,6 @@ from rest_framework import serializers
 from .models import Driver, Vehicle
 
 
-
-
 class DriverSerializer(serializers.ModelSerializer):
     """Список водителей"""
 
@@ -12,6 +10,7 @@ class DriverSerializer(serializers.ModelSerializer):
         fields = ('__all__')
         # in case of main information need
         # fields = ('first_name', 'last_name')
+
 
 class VehicleSerializer(serializers.ModelSerializer):
     """Список автомобилей"""

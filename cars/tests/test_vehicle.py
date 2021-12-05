@@ -3,7 +3,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 from cars.models import Vehicle, Driver
-from cars.serializers import VehicleSerializer, DriverSerializer
+from cars.serializers import VehicleSerializer, VehicleDriverSerializer
 
 
 class VehicleTestCases(APITestCase):
@@ -26,7 +26,7 @@ class VehicleTestCases(APITestCase):
             plate_number='test_number_2',
         )
         self.vehicle_3 = Vehicle.objects.create(
-            driver=self.driver_2,
+            driver=None,
             make="test_brand",
             model='test_model',
             plate_number='test_number_3',
@@ -41,20 +41,19 @@ class VehicleTestCases(APITestCase):
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertEqual(serializer_data, response.data)
 
-    # def test_create(self):
-    #
-    #     data = {
-    #         "driver": self.driver_1,
-    #         "make": "test_brand",
-    #         "model": "test_model",
-    #         "plate_number": "test_number_4",
-    #     }
-    #
-    #     response = self.client.post('/vehicles/vehicle/', data=data, format="json")
-    #     print(response.json())
-    #     self.assertEqual(status.HTTP_201_CREATED, response.status_code)
-    #     self.assertEqual(4, Vehicle.objects.all().count())
-    #     self.assertEqual(data["plate_number"], Vehicle.objects.all()[3].plate_number)
+    def test_create(self):
+        data = {
+            "driver": 1,
+            "make": "test_brand",
+            "model": "test_model",
+            "plate_number": "test_number_4",
+        }
+
+        response = self.client.post('/vehicles/vehicle/', data=data, format="json")
+        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
+        self.assertEqual(4, Vehicle.objects.all().count())
+        self.assertEqual(data["plate_number"], Vehicle.objects.all()[3].plate_number)
+        self.assertEqual(data["driver"], Vehicle.objects.all()[3].driver.id)
 
     def test_create_no_driver(self):
         data = {
@@ -65,7 +64,6 @@ class VehicleTestCases(APITestCase):
         }
 
         response = self.client.post('/vehicles/vehicle/', data=data, format="json")
-        print(response.json())
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
         self.assertEqual(4, Vehicle.objects.all().count())
         self.assertEqual(data["plate_number"], Vehicle.objects.all()[3].plate_number)
@@ -79,48 +77,74 @@ class VehicleTestCases(APITestCase):
         }
 
         response = self.client.post('/vehicles/vehicle/', data=data, format="json")
-        print(response.json())
         self.assertEqual(status.HTTP_400_BAD_REQUEST, response.status_code)
         self.assertEqual(3, Vehicle.objects.all().count())
-# {'plate_number': ['Автомобиль с таким Номерной знак уже существует.']}  как отловить эту ошибку?
 
-#     def test_update(self):
-#         data = {
-#             "first_name": "Firstname",
-#             "last_name": "Lastname"
-#         }
-#         self.client.force_login(self.user)
-#         response = self.client.put('/drivers/driver/3/', data=data, format="json")
-#         self.assertEqual(status.HTTP_200_OK, response.status_code)
-#         self.driver_3.refresh_from_db()
-#         self.assertEqual(data["first_name"], self.driver_3.first_name)
-#         self.assertEqual(data["last_name"], self.driver_3.last_name)
-#
-#     def test_delete(self):
-#         self.client.force_login(self.user)
-#         response = self.client.delete(reverse('driver-detail', kwargs={'pk': 2}))
-#         self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
-#         self.assertEqual(2, Driver.objects.all().count())
-#
-#     def test_filter(self):
-#         response = self.client.get('/drivers/driver/', follow=True,
-#                                    data={"created_at": 'created_at__gte'})
-#         serializer_data = DriverSerializer([self.driver_1, self.driver_2, self.driver_3], many=True).data
-#         self.assertEqual(status.HTTP_200_OK, response.status_code)
-#         self.assertEqual(serializer_data, response.data)
-#
-#     def test_fail_driver_detail(self):
-#         response = self.client.get(reverse('driver-detail', kwargs={'pk': 10}))
-#         self.assertEqual(status.HTTP_404_NOT_FOUND, response.status_code)
-#
-#     def test_driver_detail(self):
-#         response = self.client.get(reverse('driver-detail', kwargs={'pk': self.driver_3.id}))
-#         self.assertEqual(status.HTTP_200_OK, response.status_code)
-#         self.assertEqual(response.json().get('first_name'), "fname3")
-#         self.assertEqual(response.json().get('last_name'), "lname3")
-#
-#     def test_driver_list(self):
-#         response = self.client.get(reverse('driver-list'))
-#         # serializer_data = DriverSerializer([self.driver_1, self.driver_2, self.driver_3], many=True).data
-#         self.assertEqual(status.HTTP_200_OK, response.status_code)
-#         self.assertTrue({'id': 1, 'first_name': 'fname1', 'last_name': 'lname1'} in response.json())
+    # {'plate_number': ['Автомобиль с таким Номерной знак уже существует.']}  как отловить эту ошибку?
+
+    def test_update(self):
+        data = {
+            "driver": None,
+            "make": "test_brand_update",
+            "model": "test_model_update",
+            "plate_number": "test_number_update",
+        }
+        self.client.force_login(self.user)
+        response = self.client.put('/vehicles/vehicle/2/', data=data, format="json")
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        self.vehicle_2.refresh_from_db()
+        self.assertEqual(data["make"], self.vehicle_2.make)
+        self.assertEqual(data["model"], self.vehicle_2.model)
+        self.assertEqual(data["plate_number"], self.vehicle_2.plate_number)
+        self.assertEqual(data["driver"], self.vehicle_2.driver)
+
+    def test_delete(self):
+        self.client.force_login(self.user)
+        response = self.client.delete(reverse('vehicle-detail', kwargs={'pk': 2}))
+        self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
+        self.assertEqual(2, Vehicle.objects.all().count())
+
+    def test_filter_no(self):
+        response = self.client.get('/vehicles/vehicle/?with_drivers=no', format="json")
+        serializer_data = VehicleSerializer([self.vehicle_3], many=True).data
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        self.assertEqual(serializer_data, response.data)
+
+    def test_filter_yes(self):
+        response = self.client.get('/vehicles/vehicle/?with_drivers=yes', format="json")
+        serializer_data = VehicleSerializer([self.vehicle_1, self.vehicle_2], many=True).data
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        self.assertEqual(serializer_data, response.data)
+
+    def test_fail_vehicle_detail(self):
+        response = self.client.get(reverse('driver-detail', kwargs={'pk': 10}))
+        self.assertEqual(status.HTTP_404_NOT_FOUND, response.status_code)
+
+    def test_vehicle_detail(self):
+        response = self.client.get(reverse('vehicle-detail', kwargs={'pk': self.vehicle_1.id}))
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        self.assertEqual(response.json().get('make'), "test_brand")
+        self.assertEqual(response.json().get('model'), "test_model")
+        self.assertEqual(response.json().get('plate_number'), "test_number_1")
+        self.assertEqual(response.json().get('driver'), self.driver_1.id)
+
+    def test_vehicle_set_driver(self):
+        data = {
+            "driver": 1,
+        }
+        self.assertEqual(None, self.vehicle_3.driver)
+        # response = self.client.post(reverse('set_driver', kwargs={'vehicle_id': 3, "driver": 1}))
+        response = self.client.post('/vehicles/set_driver/3/', data=data, format="json")
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        self.assertEqual(response.json().get('driver'), self.driver_1.id)
+        self.vehicle_3.refresh_from_db()
+        self.assertEqual(data["driver"], Vehicle.objects.all()[2].driver.id)
+
+    def test_serializer(self):
+        response = self.client.get("/vehicles/vehicle/")
+        serializer_data = VehicleDriverSerializer([self.vehicle_1, self.vehicle_2, self.vehicle_3], many=True)
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        self.assertEqual(serializer_data.data[0].get('driver'), response.json()[0].get("driver"))
+        self.assertEqual(serializer_data.data[1].get('driver'), response.json()[1].get("driver"))
+        self.assertEqual(serializer_data.data[2].get('driver'), response.json()[2].get("driver"))
+

@@ -40,13 +40,10 @@ class VehicleDriverFilter(django_filters.FilterSet):
         exclude=True,
     )
 
-    # Entry.objects.get(id__exact=None)
-    # Entry.objects.filter(pub_date__isnull=True)
-
     class Meta:
         model = Vehicle
         fields = ['with_drivers']
-        # fields = {'driver': ['isnull'], }
+
 
 class VehicleViewSet(viewsets.ModelViewSet):
     """Перечень машин"""
