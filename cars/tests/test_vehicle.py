@@ -79,8 +79,10 @@ class VehicleTestCases(APITestCase):
         response = self.client.post('/vehicles/vehicle/', data=data, format="json")
         self.assertEqual(status.HTTP_400_BAD_REQUEST, response.status_code)
         self.assertEqual(3, Vehicle.objects.all().count())
+        error = "['Автомобиль с таким Номерной знак уже существует.']"
+        print(response.json())
+        # self.assertEqual(error, response.json().get("plate_number"))
 
-    # {'plate_number': ['Автомобиль с таким Номерной знак уже существует.']}  как отловить эту ошибку?
 
     def test_update(self):
         data = {
